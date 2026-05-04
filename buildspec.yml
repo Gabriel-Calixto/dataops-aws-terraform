@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Instalando Terraform no ambiente do CodeBuild..."
+      - TERRAFORM_VERSION=1.5.7
+      - curl -sSLo /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      - unzip -o /tmp/terraform.zip -d /usr/local/bin
+      - terraform version
+      - aws --version
+
+  pre_build:
+    commands:
+      - echo "Sincronizando scripts do projeto CloudMart no S3..."
+      - aws s3 sync glue/ s3://$SCRIPT_BUCKET/glue/ --delete
+      - aws s3 sync dbt/ s3://$SCRIPT_BUCKET/dbt/ --delete
+      - aws s3 sync scripts/ s3://$SCRIPT_BUCKET/scripts/ --delete
+
+  build:
+    commands:
+      - echo "Executando Terraform..."
+      - cd terraform
+      - terraform init -input=false
+      - terraform validate
+      - terraform plan -input=false
+      - terraform apply -auto-approve -input=false
+
+  post_build:
+    commands:
+      - echo "Pipeline DataOps CloudMart finalizado com sucesso."
+
+artifacts:
+  files:
+    - '**/*'
