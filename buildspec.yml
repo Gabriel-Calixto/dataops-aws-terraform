@@ -12,10 +12,13 @@ phases:
 
   pre_build:
     commands:
+      - echo "Preparando pastas do projeto CloudMart..."
+      - mkdir -p glue dbt scripts
       - echo "Sincronizando scripts do projeto CloudMart no S3..."
       - aws s3 sync glue/ s3://$SCRIPT_BUCKET/glue/ --delete
       - aws s3 sync dbt/ s3://$SCRIPT_BUCKET/dbt/ --delete
       - aws s3 sync scripts/ s3://$SCRIPT_BUCKET/scripts/ --delete
+      	
 
   build:
     commands:
