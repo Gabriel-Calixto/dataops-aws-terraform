@@ -1,0 +1,39 @@
+{
+  "Comment": "Orquestracao DataOps CloudMart: Ingestao -> Transformacao dbt -> Atualizacao de Views",
+  "StartAt": "IngestaoGlue",
+  "States": {
+    "IngestaoGlue": {
+      "Type": "Pass",
+      "Result": {
+        "etapa": "Ingestao",
+        "servico": "AWS Glue",
+        "descricao": "Leitura dos dados brutos da Raw Zone e preparacao para processamento."
+      },
+      "ResultPath": "$.ingestao",
+      "Next": "TransformacaoDbt"
+    },
+    "TransformacaoDbt": {
+      "Type": "Pass",
+      "Result": {
+        "etapa": "Transformacao",
+        "ferramenta": "dbt",
+        "descricao": "Execucao dos modelos dbt para padronizacao, qualidade e camada analitica."
+      },
+      "ResultPath": "$.transformacao",
+      "Next": "AtualizacaoViews"
+    },
+    "AtualizacaoViews": {
+      "Type": "Pass",
+      "Result": {
+        "etapa": "Atualizacao de Views",
+        "destino": "Camada analitica",
+        "descricao": "Atualizacao das views finais para consumo por dashboards e consultas analiticas."
+      },
+      "ResultPath": "$.views",
+      "Next": "SucessoPipeline"
+    },
+    "SucessoPipeline": {
+      "Type": "Succeed"
+    }
+  }
+}
